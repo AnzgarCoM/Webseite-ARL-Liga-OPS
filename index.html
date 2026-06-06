@@ -10,6 +10,7 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); }
+        input[type="range"] { accent-color: #2563eb; }
     </style>
 </head>
 <body class="bg-[#0b0f19] text-slate-200 antialiased overflow-hidden" x-data="ligaOpsApp()">
@@ -70,9 +71,7 @@
                         <img src="ARL Logo.jpg" alt="ARL Logo Mini" class="w-8 h-8 object-contain rounded bg-slate-900 p-0.5">
                         <span class="text-white font-bold text-base tracking-wider uppercase">ARL Ops Suite</span>
                     </div>
-                    <button @click="mobileMenuOpen = false" class="lg:hidden text-slate-400 hover:text-white">
-                        ✕
-                    </button>
+                    <button @click="mobileMenuOpen = false" class="lg:hidden text-slate-400 hover:text-white text-lg p-1">✕</button>
                 </div>
 
                 <nav class="p-3 space-y-1">
@@ -80,7 +79,7 @@
                     <button @click="currentView = 'tickets'; mobileMenuOpen = false" :class="(currentView === 'tickets' || currentView === 'ticket-detail' || currentView === 'ticket-create') ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left">Tickets & Anträge</button>
                     <button @click="currentView = 'team'; mobileMenuOpen = false" :class="currentView === 'team' ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left">👥 Team-Übersicht</button>
                     <button @click="currentView = 'archive'; mobileMenuOpen = false" :class="currentView === 'archive' ? 'bg-slate-700 text-white font-semibold' : 'hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left">Archiv & Papierkorb</button>
-                    <button @click="currentView = 'qa'; mobileMenuOpen = false" :class="currentView === 'qa' ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left">Steward Analyst</button>
+                    <button @click="currentView = 'qa'; mobileMenuOpen = false" :class="currentView === 'qa' ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left">📊 Quality Analyst</button>
                     
                     <template x-if="isAdmin || isSupervisor">
                         <button @click="currentView = 'admin'; mobileMenuOpen = false" :class="currentView === 'admin' ? 'bg-amber-600 text-white font-semibold' : 'hover:bg-slate-800/50 hover:text-amber-400'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left border border-dashed border-amber-500/20 mt-4">👑 Admin Panel</button>
@@ -88,7 +87,7 @@
                 </nav>
             </div>
             <div class="p-4 border-t border-slate-800/60 flex justify-between items-center text-xs text-slate-600">
-                <span>v2.1.0</span>
+                <span>v2.2.0</span>
                 <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">Live Sync</span>
             </div>
         </aside>
@@ -98,10 +97,8 @@
         <div class="flex-1 flex flex-col overflow-hidden bg-[#070a13] w-full">
             <header class="h-16 bg-[#111827] border-b border-slate-800/80 flex items-center justify-between px-4 sm:px-6 shrink-0 z-10">
                 <div class="flex items-center gap-3">
-                    <button @click="mobileMenuOpen = true" class="lg:hidden text-slate-400 hover:text-white p-1 text-xl cursor-pointer">
-                        ☰
-                    </button>
-                    <span class="bg-blue-500/10 text-blue-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-blue-500/20 truncate max-w-[120px] sm:max-w-none" x-text="currentUserRole"></span>
+                    <button @click="mobileMenuOpen = true" class="lg:hidden text-slate-400 hover:text-white p-1 text-xl cursor-pointer">☰</button>
+                    <span class="bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-blue-500/20 truncate max-w-[150px] sm:max-w-none" x-text="currentUserRole"></span>
                 </div>
                 <div class="flex items-center gap-2 sm:gap-4">
                     <button @click="logoutUser()" class="text-slate-400 hover:text-rose-400 text-xs font-semibold px-2 py-1 transition-colors cursor-pointer">Abmelden</button>
@@ -227,6 +224,164 @@
                                 </template>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <div x-show="currentView === 'qa'" class="max-w-5xl mx-auto space-y-6" style="display: none;">
+                    
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-white tracking-tight flex items-center gap-2">📊 Quality Analyst Dashboard</h2>
+                            <p class="text-xs text-slate-400">Leistungsbewertungen und Qualitätssicherung des Fahrerfeldes.</p>
+                        </div>
+                        <button @click="openNewEvalModal()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md cursor-pointer text-center">
+                            + Neue Evaluation
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-[#111827] border border-slate-800 p-4 rounded-xl text-center shadow-lg">
+                            <span class="text-2xl sm:text-3xl font-black text-blue-500" x-text="evaluations.length"></span>
+                            <p class="text-[11px] text-slate-400 font-medium uppercase tracking-wider mt-1">Evaluationen gesamt</p>
+                        </div>
+                        <div class="bg-[#111827] border border-slate-800 p-4 rounded-xl text-center shadow-lg">
+                            <span class="text-2xl sm:text-3xl font-black text-emerald-400" x-text="calculateAverageScore()"></span>
+                            <p class="text-[11px] text-slate-400 font-medium uppercase tracking-wider mt-1">Ø Gesamtscore</p>
+                        </div>
+                        <div class="bg-[#111827] border border-slate-800 p-4 rounded-xl text-center shadow-lg">
+                            <span class="text-2xl sm:text-3xl font-black text-purple-400" x-text="evaluations.filter(e => e.status === 'Besprochen').length"></span>
+                            <p class="text-[11px] text-slate-400 font-medium uppercase tracking-wider mt-1">Besprochen</p>
+                        </div>
+                    </div>
+
+                    <div class="border-b border-slate-800/80 flex gap-6 text-xs font-bold uppercase tracking-wider">
+                        <button @click="qaSubTab = 'all'" :class="qaSubTab === 'all' ? 'text-blue-400 border-b-2 border-blue-500 pb-2' : 'text-slate-500 pb-2'" class="cursor-pointer">Evaluationen</button>
+                        <button @click="qaSubTab = 'logs'" :class="qaSubTab === 'logs' ? 'text-blue-400 border-b-2 border-blue-500 pb-2' : 'text-slate-500 pb-2'" class="cursor-pointer">Zeiterfassung</button>
+                    </div>
+
+                    <div x-show="qaSubTab === 'all'" class="space-y-3">
+                        <template x-for="ev in evaluations">
+                            <div class="bg-[#111827] border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-slate-700 transition-colors shadow-md">
+                                <div class="flex items-start gap-3 min-w-0">
+                                    <div class="w-9 h-9 rounded-lg bg-blue-600/10 text-blue-400 border border-blue-500/20 flex items-center justify-center text-xs font-black shrink-0" x-text="ev.operatorName ? ev.operatorName.substring(0,2).toUpperCase() : '??'"></div>
+                                    <div class="min-w-0">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <h4 class="text-sm font-bold text-white tracking-tight" x-text="ev.operatorName || 'Unbekannt'"></h4>
+                                            <span class="text-[10px] text-slate-500 font-mono" x-text="ev.period || ''"></span>
+                                            <span :class="ev.status === 'Besprochen' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'" class="text-[9px] font-bold px-1.5 py-0.5 rounded border" x-text="ev.status || 'Offen'"></span>
+                                        </div>
+                                        <p class="text-[11px] text-slate-400 mt-1 truncate" x-text="'QA: ' + ev.evaluatorName + ' · ' + (ev.generalNotes || 'Keine Anmerkungen')"></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-800/60">
+                                    <div class="text-right">
+                                        <span class="text-xl font-extrabold text-blue-400" x-text="parseFloat(ev.finalScore).toFixed(1)"></span>
+                                        <p class="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Ø Score</p>
+                                    </div>
+                                    <select @change="updateEvalStatus(ev.id, $event.target.value)" class="bg-[#1f2937] border border-slate-700 text-slate-300 text-xs rounded-lg px-2 py-1 focus:outline-none cursor-pointer">
+                                        <option value="Offen" :selected="ev.status === 'Offen'">Offen</option>
+                                        <option value="Besprochen" :selected="ev.status === 'Besprochen'">Besprochen</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </template>
+                        <div x-show="evaluations.length === 0" class="text-center text-xs text-slate-500 py-12 bg-[#111827] rounded-xl border border-slate-800">
+                            Keine Evaluationen im System hinterlegt.
+                        </div>
+                    </div>
+
+                    <div x-show="qaSubTab === 'logs'" class="p-6 text-center text-xs text-slate-500 bg-[#111827] border border-slate-800 rounded-xl" style="display: none;">
+                        Modul Zeiterfassung ist aktiv geschaltet. Keine Logdaten vorhanden.
+                    </div>
+                </div>
+
+                <div x-show="currentView === 'qa-create-modal'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" style="display: none;">
+                    <div class="bg-[#111827] border border-slate-800 w-full max-w-xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+                        
+                        <div class="p-4 sm:p-5 border-b border-slate-800 flex justify-between items-center bg-[#161f30]">
+                            <h3 class="font-bold text-base text-white">Neue Evaluation erstellen</h3>
+                            <button @click="currentView = 'qa'" class="text-slate-400 hover:text-white font-bold text-lg p-1">✕</button>
+                        </div>
+
+                        <div class="p-4 sm:p-6 overflow-y-auto space-y-5 text-left flex-1">
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Mitarbeiter *</label>
+                                    <select x-model="newEvalData.operatorEmail" required @change="syncOperatorName()" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 focus:outline-none">
+                                        <option value="">Mitarbeiter wählen...</option>
+                                        <template x-for="member in cloudUsers.filter(u => u.status === 'Approved')">
+                                            <option :value="member.email" x-text="member.name"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Bewertungszeitraum</label>
+                                    <input type="text" x-model="newEvalData.period" placeholder="z.B. Mai 2026" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 focus:outline-none">
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center border-b border-slate-800 pb-1 pt-2">
+                                <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Bewertungskriterien</span>
+                                <div class="text-xs font-bold text-slate-400">
+                                    Ø Gesamt: <span class="text-blue-400 text-sm font-black ml-1" x-text="calculateLiveAverage()"></span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="bg-[#1f2937]/20 border border-slate-800 p-3 rounded-xl">
+                                    <div class="flex justify-between items-center text-xs font-semibold mb-1">
+                                        <span class="text-slate-300">⏱ Handling Time</span>
+                                        <div class="flex items-center gap-1.5"><span class="text-blue-400 font-black" x-text="newEvalData.scoreHandling + ' /10'"></span> <span class="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20 font-bold">Gut</span></div>
+                                    </div>
+                                    <input type="range" min="1" max="10" step="1" x-model="newEvalData.scoreHandling" class="w-full h-1.5 bg-slate-700 rounded-lg cursor-pointer">
+                                </div>
+
+                                <div class="bg-[#1f2937]/20 border border-slate-800 p-3 rounded-xl">
+                                    <div class="flex justify-between items-center text-xs font-semibold mb-1">
+                                        <span class="text-slate-300">✅ Quality</span>
+                                        <div class="flex items-center gap-1.5"><span class="text-blue-400 font-black" x-text="newEvalData.scoreQuality + ' /10'"></span> <span class="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20 font-bold">Gut</span></div>
+                                    </div>
+                                    <input type="range" min="1" max="10" step="1" x-model="newEvalData.scoreQuality" class="w-full h-1.5 bg-slate-700 rounded-lg cursor-pointer">
+                                </div>
+
+                                <div class="bg-[#1f2937]/20 border border-slate-800 p-3 rounded-xl">
+                                    <div class="flex justify-between items-center text-xs font-semibold mb-1">
+                                        <span class="text-slate-300">📁 Workflow</span>
+                                        <div class="flex items-center gap-1.5"><span class="text-blue-400 font-black" x-text="newEvalData.scoreWorkflow + ' /10'"></span> <span class="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20 font-bold">Gut</span></div>
+                                    </div>
+                                    <input type="range" min="1" max="10" step="1" x-model="newEvalData.scoreWorkflow" class="w-full h-1.5 bg-slate-700 rounded-lg cursor-pointer">
+                                </div>
+
+                                <div class="bg-[#1f2937]/20 border border-slate-800 p-3 rounded-xl">
+                                    <div class="flex justify-between items-center text-xs font-semibold mb-1">
+                                        <span class="text-slate-300">📈 Escalation Process</span>
+                                        <div class="flex items-center gap-1.5"><span class="text-blue-400 font-black" x-text="newEvalData.scoreEscalation + ' /10'"></span> <span class="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20 font-bold">Gut</span></div>
+                                    </div>
+                                    <input type="range" min="1" max="10" step="1" x-model="newEvalData.scoreEscalation" class="w-full h-1.5 bg-slate-700 rounded-lg cursor-pointer">
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Stärken</label>
+                                    <textarea x-model="newEvalData.strengths" rows="2" placeholder="Was macht der Mitarbeiter gut?" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl p-2.5 text-xs text-white resize-none focus:outline-none focus:border-blue-500"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Verbesserungspotenzial</label>
+                                    <textarea x-model="newEvalData.improvements" rows="2" placeholder="Wo kann er sich verbessern?" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl p-2.5 text-xs text-white resize-none focus:outline-none focus:border-blue-500"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Allgemeine Anmerkungen</label>
+                                    <textarea x-model="newEvalData.generalNotes" rows="2" placeholder="Weitere Notizen..." class="w-full bg-[#1f2937] border border-slate-700 rounded-xl p-2.5 text-xs text-white resize-none focus:outline-none focus:border-blue-500"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 border-t border-slate-800 bg-[#161f30] flex justify-end gap-3 shrink-0">
+                            <button @click="currentView = 'qa'" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer">Abbrechen</button>
+                            <button @click="submitEvaluation()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-lg cursor-pointer">Evaluation speichern</button>
+                        </div>
                     </div>
                 </div>
 
@@ -378,62 +533,6 @@
                     </div>
                 </div>
 
-                <div x-show="currentView === 'qa'" class="max-w-5xl mx-auto space-y-5" style="display: none;">
-                    <div class="border-b border-slate-800 flex gap-6 text-xs font-bold uppercase tracking-wider">
-                        <button @click="qaSubTab = 'evaluations'" :class="qaSubTab === 'evaluations' ? 'text-blue-400 border-b-2 border-blue-500 pb-2' : 'text-slate-500 pb-2'" class="cursor-pointer">Neue Lizenz-Bewertung</button>
-                        <button @click="qaSubTab = 'time-tracking'" :class="qaSubTab === 'time-tracking' ? 'text-blue-400 border-b-2 border-blue-500 pb-2' : 'text-slate-500 pb-2'" class="cursor-pointer">Historie</button>
-                    </div>
-
-                    <div x-show="qaSubTab === 'evaluations'" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                        <div class="md:col-span-2 bg-[#111827] border border-slate-800 rounded-xl p-4 sm:p-6 shadow-lg space-y-4">
-                            <form @submit.prevent="submitEvaluation()">
-                                <div class="space-y-4 text-left">
-                                    <div>
-                                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Fahrer / Verifiziertes Mitglied</label>
-                                        <select x-model="newEvaluation.operator" required class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                                            <option value="">-- Mitglied wählen --</option>
-                                            <template x-for="member in cloudUsers.filter(u => u.status === 'Approved')">
-                                                <option :value="member.email" x-text="member.name"></option>
-                                            </template>
-                                        </select>
-                                    </div>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Safety-Score (0 - 100)</label>
-                                            <input type="number" min="0" max="100" x-model="newEvaluation.score" required class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Kriterium</label>
-                                            <select x-model="newEvaluation.aspect" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                                                <option value="Fahrverhalten-Prüfung">Fahrverhalten-Prüfung</option>
-                                                <option value="Umgang im Fahrerfeld">Umgang im Fahrerfeld</option>
-                                                <option value="Rennstrafen-Verhalten">Rennstrafen-Verhalten</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Ermittlungs-Notiz</label>
-                                        <textarea x-model="newEvaluation.feedback" rows="3" placeholder="Begründung..." class="w-full bg-[#1f2937] border border-slate-700 rounded-xl p-3 text-xs resize-none text-white"></textarea>
-                                    </div>
-                                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 rounded-xl shadow-md cursor-pointer">Eintrag übermitteln</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div x-show="qaSubTab === 'time-tracking'" class="bg-[#111827] border border-slate-800 rounded-xl shadow-lg divide-y divide-slate-800 overflow-hidden" style="display: none;">
-                        <template x-for="eval in evaluations">
-                            <div class="p-4 flex justify-between items-center gap-3">
-                                <div class="text-left min-w-0">
-                                    <p class="text-xs font-bold text-white truncate" x-text="'Fahrer: ' + eval.operator"></p>
-                                    <p class="text-[11px] text-slate-500 mt-0.5 truncate" x-text="eval.aspect + ' — ' + (eval.feedback || 'Keine Angabe')"></p>
-                                </div>
-                                <span :class="eval.score >= 80 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'" class="text-xs font-black px-2.5 py-1 rounded-lg border shrink-0" x-text="eval.score + ' SP'"></span>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
                 <div x-show="currentView === 'admin' && (isAdmin || isSupervisor)" class="max-w-5xl mx-auto space-y-6" style="display: none;">
                     
                     <div class="bg-[#111827] border border-amber-500/30 rounded-xl shadow-lg p-4 sm:p-5 relative overflow-hidden bg-[linear-gradient(to_bottom_right,_rgba(245,158,11,0.05),_rgba(17,24,39,1))]">
@@ -544,7 +643,11 @@
             },
             async executeLogout() { await signOut(auth); },
             async createTicket(ticketData) { await addDoc(collection(db, "tickets"), ticketData); },
+            
+            // Refactored Evaluations Sync für Firestore
             async createEvaluation(evalData) { await addDoc(collection(db, "evaluations"), evalData); },
+            async updateEvalStatus(evalId, nextStatus) { await updateDoc(doc(db, "evaluations", evalId), { status: nextStatus }); },
+            
             async createTeamMember(memberData) { await addDoc(collection(db, "users"), memberData); },
             async updateUserApproval(docId) { await updateDoc(doc(db, "users", docId), { status: 'Approved' }); },
             async removeUserRequest(docId) { await deleteDoc(doc(db, "users", docId)); },
@@ -585,8 +688,8 @@
         function ligaOpsApp() {
             return {
                 user: null, userInitials: '??', isAdmin: false, isApproved: false, isSupervisor: false,
-                currentView: 'dashboard', qaSubTab: 'evaluations', currentUserRole: 'Operator',
-                mobileMenuOpen: false, // Zustandsvariable für das mobile Menü
+                currentView: 'dashboard', qaSubTab: 'all', currentUserRole: 'Operator',
+                mobileMenuOpen: false, 
                 authEmail: '', authPassword: '', authName: '', authError: '', isRegistering: false,
                 tickets: [], evaluations: [], cloudUsers: [], activeTicket: null, activeComments: [], newComment: '',
                 myProfileName: 'Mitglied',
@@ -599,7 +702,21 @@
                 ],
 
                 newTicketData: { title: '', category: '', status: 'Offen', description: '', isEscalated: false },
-                newEvaluation: { operator: '', score: 90, aspect: 'Fahrverhalten-Prüfung', feedback: '' },
+                
+                // Neue Struktur basierend auf Ev 1.jpg
+                newEvalData: { 
+                    operatorEmail: '', 
+                    operatorName: '',
+                    period: 'Juni 2026', 
+                    scoreHandling: 7, 
+                    scoreQuality: 7, 
+                    scoreWorkflow: 7, 
+                    scoreEscalation: 7,
+                    strengths: '',
+                    improvements: '',
+                    generalNotes: ''
+                },
+                
                 newMemberData: { name: '', email: '', departments: [] },
                 unsubTickets: null, unsubComments: null, unsubEvaluations: null, unsubCloudUsers: null,
 
@@ -668,6 +785,61 @@
                     });
                 },
 
+                // Hilfsfunktionen für Berechnungen (Ev 2.jpg)
+                calculateLiveAverage() {
+                    let avg = (parseInt(this.newEvalData.scoreHandling) + 
+                               parseInt(this.newEvalData.scoreQuality) + 
+                               parseInt(this.newEvalData.scoreWorkflow) + 
+                               parseInt(this.newEvalData.scoreEscalation)) / 4;
+                    return avg.toFixed(1);
+                },
+
+                calculateAverageScore() {
+                    if (this.evaluations.length === 0) return "0.0";
+                    let sum = this.evaluations.reduce((acc, curr) => acc + parseFloat(curr.finalScore || 0), 0);
+                    return (sum / this.evaluations.length).toFixed(1);
+                },
+
+                syncOperatorName() {
+                    const found = this.cloudUsers.find(u => u.email === this.newEvalData.operatorEmail);
+                    this.newEvalData.operatorName = found ? found.name : '';
+                },
+
+                openNewEvalModal() {
+                    this.newEvalData = { 
+                        operatorEmail: '', operatorName: '', period: 'Juni 2026', 
+                        scoreHandling: 7, scoreQuality: 7, scoreWorkflow: 7, scoreEscalation: 7,
+                        strengths: '', improvements: '', generalNotes: ''
+                    };
+                    this.currentView = 'qa-create-modal';
+                },
+
+                async submitEvaluation() {
+                    if (!this.newEvalData.operatorEmail) { alert("Bitte einen Mitarbeiter auswählen."); return; }
+                    
+                    let finalCalculatedScore = this.calculateLiveAverage();
+                    
+                    try {
+                        await window.firebaseBridge.createEvaluation({
+                            ...this.newEvalData,
+                            scoreHandling: parseInt(this.newEvalData.scoreHandling),
+                            scoreQuality: parseInt(this.newEvalData.scoreQuality),
+                            scoreWorkflow: parseInt(this.newEvalData.scoreWorkflow),
+                            scoreEscalation: parseInt(this.newEvalData.scoreEscalation),
+                            finalScore: finalCalculatedScore,
+                            status: 'Offen',
+                            evaluatorEmail: this.user.email,
+                            evaluatorName: this.myProfileName,
+                            createdAt: new Date().getTime()
+                        });
+                        this.currentView = 'qa';
+                    } catch(e) { console.error(e); }
+                },
+
+                async updateEvalStatus(evalId, nextStatus) {
+                    try { await window.firebaseBridge.updateEvalStatus(evalId, nextStatus); } catch (e) { console.error(e); }
+                },
+
                 async updateTicketStatus(ticketId, nextStatus) {
                     try { await window.firebaseBridge.updateTicketStatus(ticketId, nextStatus); } catch (e) { console.error(e); }
                 },
@@ -692,15 +864,6 @@
                         await window.firebaseBridge.createTicket({ ...this.newTicketData, isDeleted: false, createdBy: this.user.email, subtitle: `Abteilung: ${this.newTicketData.category} - von ${this.user.email}`, createdAt: new Date().getTime() });
                         this.newTicketData = { title: '', category: '', status: 'Offen', description: '', isEscalated: false };
                         this.currentView = 'tickets';
-                    } catch(e) { console.error(e); }
-                },
-
-                async submitEvaluation() {
-                    if (!this.newEvaluation.operator.trim()) return;
-                    try {
-                        await window.firebaseBridge.createEvaluation({ ...this.newEvaluation, score: parseInt(this.newEvaluation.score), evaluator: this.user.email, createdAt: new Date().getTime() });
-                        this.newEvaluation = { operator: '', score: 90, aspect: 'Fahrverhalten-Prüfung', feedback: '' };
-                        this.qaSubTab = 'time-tracking';
                     } catch(e) { console.error(e); }
                 },
 
