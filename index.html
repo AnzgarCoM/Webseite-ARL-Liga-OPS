@@ -163,7 +163,7 @@
                             <div @click="openTicket(ticket)" class="p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-2 hover:bg-slate-800/30 transition-colors cursor-pointer">
                                 <div>
                                     <h4 class="text-xs font-bold text-white tracking-tight" x-text="ticket.title"></h4>
-                                    <p class="text-[11px] text-slate-500 mt-0.5 truncate max-w-xs sm:max-w-none" x-text="'Abteilung: ' + ticket.category + ' — Von: ' + ticket.createdBy"></p>
+                                    <p class="text-[11px] text-slate-500 mt-0.5 truncate max-w-xs sm:max-w-none" x-text="'Abteilung: ' + ticket.category + ' — Von: ' + (ticket.discordRequester || ticket.createdBy)"></p>
                                 </div>
                                 <div class="flex items-center gap-2.5 self-start sm:self-center shrink-0">
                                     <span class="bg-[#1f2937] border border-slate-700 text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-md" x-text="ticket.status || 'Offen'"></span>
@@ -228,7 +228,6 @@
                 </div>
 
                 <div x-show="currentView === 'qa'" class="max-w-5xl mx-auto space-y-6" style="display: none;">
-                    
                     <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                         <div>
                             <h2 class="text-xl font-bold text-white tracking-tight flex items-center gap-2">📊 Quality Analyst Dashboard</h2>
@@ -297,14 +296,12 @@
 
                 <div x-show="currentView === 'qa-create-modal'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" style="display: none;">
                     <div class="bg-[#111827] border border-slate-800 w-full max-w-xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
-                        
                         <div class="p-4 sm:p-5 border-b border-slate-800 flex justify-between items-center bg-[#161f30]">
                             <h3 class="font-bold text-base text-white">Neue Evaluation erstellen</h3>
                             <button @click="currentView = 'qa'" class="text-slate-400 hover:text-white font-bold text-lg p-1">✕</button>
                         </div>
 
                         <div class="p-4 sm:p-6 overflow-y-auto space-y-5 text-left flex-1">
-                            
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Mitarbeiter *</label>
@@ -394,7 +391,7 @@
                                     <div @click="openTicket(ticket)" class="p-3 bg-emerald-950/20 border border-emerald-900/40 rounded-xl flex justify-between items-center cursor-pointer hover:border-emerald-500 transition-colors">
                                         <div class="text-left min-w-0">
                                             <p class="text-xs font-bold text-slate-200 truncate" x-text="ticket.title"></p>
-                                            <p class="text-[10px] text-slate-500 mt-0.5 truncate" x-text="'Erledigt für: ' + ticket.createdBy"></p>
+                                            <p class="text-[10px] text-slate-500 mt-0.5 truncate" x-text="'Erledigt für: ' + (ticket.discordRequester || ticket.createdBy)"></p>
                                         </div>
                                         <span class="bg-emerald-500/20 text-emerald-400 text-[9px] font-bold px-2 py-0.5 rounded shrink-0 ml-2">Archiv</span>
                                     </div>
@@ -427,38 +424,82 @@
                     <div class="bg-[#111827] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-lg">
                         <form @submit.prevent="submitNewTicket()">
                             <div class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Ticket-Titel / Fallnummer</label>
-                                    <input type="text" x-model="newTicketData.title" required placeholder="z.B. Vorfall #04 - Kurve 3" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white">
-                                </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="space-y-4">
                                     <div>
-                                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Zuständige Abteilung</label>
-                                        <select x-model="newTicketData.category" required class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white">
-                                            <option value="">-- Abteilung wählen --</option>
-                                            <option value="Finanzwesen">Finanzwesen</option>
-                                            <option value="Techsupport">Techsupport</option>
-                                            <option value="Support Level 1/Steward Level 1">Support Level 1/Steward Level 1</option>
-                                            <option value="Supervisor L2">Supervisor L2</option>
-                                            <option value="Vertrieb & Beratung">Vertrieb & Beratung</option>
-                                        </select>
+                                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Ticket-Titel / Fallnummer</label>
+                                        <input type="text" x-model="newTicketData.title" required placeholder="z.B. Vorfall #04 - Kurve 3" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white">
                                     </div>
-                                    <div>
-                                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Status</label>
-                                        <select x-model="newTicketData.status" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white">
-                                            <option value="Offen">Offen</option>
-                                            <option value="In Bearbeitung">In Bearbeitung</option>
-                                            <option value="Abgeschlossen">Abgeschlossen</option>
-                                        </select>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Ticket Kategorie</label>
+                                            <select x-model="newTicketData.category" required class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white">
+                                                <option value="">-- Kategorie wählen --</option>
+                                                <option value="Interne Anfrage">Interne Anfrage</option>
+                                                <option value="Finanzwesen">Finanzwesen</option>
+                                                <option value="Techsupport">Techsupport</option>
+                                                <option value="Support Level 1/Steward Level 1">Support Level 1/Steward Level 1</option>
+                                                <option value="Supervisor L2">Supervisor L2</option>
+                                                <option value="Vertrieb & Beratung">Vertrieb & Beratung</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Status</label>
+                                            <select x-model="newTicketData.status" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white">
+                                                <option value="Offen">Offen</option>
+                                                <option value="In Bearbeitung">In Bearbeitung</option>
+                                                <option value="Eskaliert">Eskaliert</option>
+                                                <option value="Abgeschlossen">Abgeschlossen</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
+
+                                <div class="bg-[#161f30]/50 border border-slate-800 p-4 rounded-xl space-y-4">
+                                    <h3 class="text-xs font-bold uppercase text-blue-400 tracking-wider border-b border-slate-800 pb-1.5">Metadaten & Anfragender</h3>
+                                    
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <div>
+                                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Discord Name</label>
+                                            <input type="text" x-model="newTicketData.discordRequester" placeholder="z.B. mimozabarbosa" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Division</label>
+                                            <input type="text" x-model="newTicketData.division" placeholder="z.B. Keine" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Liga</label>
+                                            <input type="text" x-model="newTicketData.liga" placeholder="z.B. alle" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <div>
+                                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Priorität</label>
+                                            <select x-model="newTicketData.priority" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                                <option value="Niedrig">Niedrig</option>
+                                                <option value="Normal">Normal</option>
+                                                <option value="Hoch">Hoch</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Zugewiesen an (E-Mail)</label>
+                                            <input type="text" x-model="newTicketData.assignedTo" placeholder="anzgarwolf@gmail.com" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Supervisor L2 (E-Mail)</label>
+                                            <input type="text" x-model="newTicketData.supervisorL2" placeholder="s.barbosa.galaxy@gmail.com" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div>
-                                    <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Begründung & Vorfallstext</label>
-                                    <textarea x-model="newTicketData.description" required rows="4" placeholder="Detaillierte Beschreibung..." class="w-full bg-[#1f2937] border border-slate-700 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 resize-none text-white"></textarea>
+                                    <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Begründung / Eskalationsgrund</label>
+                                    <textarea x-model="newTicketData.description" required rows="3" placeholder="z.B. bitte Frau Mimoza Barbosa zuweisen und die Angaben setzen..." class="w-full bg-[#1f2937] border border-slate-700 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 resize-none text-white"></textarea>
                                 </div>
+
                                 <div class="flex items-center gap-3 bg-[#1f2937]/30 p-3 rounded-xl border border-slate-800">
                                     <input type="checkbox" id="escalateCheck" x-model="newTicketData.isEscalated" class="w-4 h-4 text-blue-600 border-slate-700 rounded bg-slate-900 focus:ring-blue-500">
-                                    <label @click.prevent="newTicketData.isEscalated = !newTicketData.isEscalated" for="escalateCheck" class="text-xs font-semibold text-slate-300 cursor-pointer select-none">Als kritischen L2-Fall eskalieren</label>
+                                    <label @click.prevent="newTicketData.isEscalated = !newTicketData.isEscalated" for="escalateCheck" class="text-xs font-semibold text-slate-300 cursor-pointer select-none">🚨 Als kritischen L2-Fall eskalieren</label>
                                 </div>
                                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-2.5 rounded-xl shadow-md cursor-pointer">In der Cloud speichern</button>
                             </div>
@@ -466,75 +507,144 @@
                     </div>
                 </div>
 
-                <div x-show="currentView === 'ticket-detail'" class="max-w-5xl mx-auto space-y-4" style="display: none;">
+                <div x-show="currentView === 'ticket-detail'" class="max-w-6xl mx-auto space-y-4" style="display: none;">
                     <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                        <button @click="currentView = 'tickets'" class="self-start p-2 bg-[#111827] border border-slate-800 rounded-xl text-slate-400 hover:bg-slate-800 text-xs font-medium cursor-pointer">← Zurück</button>
+                        <button @click="currentView = 'tickets'" class="self-start p-2 bg-[#111827] border border-slate-800 rounded-xl text-slate-400 hover:bg-slate-800 text-xs font-medium cursor-pointer">← Zurück zur Übersicht</button>
                         <template x-if="(isAdmin || isSupervisor) && activeTicket && !activeTicket.isDeleted">
                             <button @click="deleteTicket(activeTicket.id)" class="w-full sm:w-auto bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md cursor-pointer">🗑 Ticket löschen</button>
                         </template>
                     </div>
 
-                    <div class="bg-[#111827] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg">
-                        <div class="flex flex-col sm:flex-row justify-between items-start gap-4 border-b pb-4 border-slate-800">
-                            <div class="min-w-0 w-full">
-                                <h1 class="text-lg sm:text-2xl font-black text-white tracking-tight break-words" :class="activeTicket && activeTicket.isDeleted ? 'line-through text-slate-500':''" x-text="activeTicket ? activeTicket.title : ''"></h1>
-                                <p class="text-xs text-slate-500 mt-1 break-all" x-text="activeTicket ? activeTicket.subtitle : ''"></p>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                        
+                        <div class="space-y-4 lg:col-span-1">
+                            
+                            <div class="bg-[#111827] border border-slate-800 p-4 rounded-xl space-y-2 text-left">
+                                <span class="text-xs font-bold text-slate-400 tracking-wide flex items-center gap-1.5">🏷 Ticket Kategorie</span>
+                                <div class="bg-slate-800/40 p-2.5 rounded-lg border border-slate-700/50 text-xs font-bold text-blue-400" x-text="activeTicket ? activeTicket.category : 'Allgemein'"></div>
                             </div>
-                            <div class="flex items-center gap-3 self-end sm:self-start shrink-0">
-                                <select x-show="!activeTicket?.isDeleted" :value="activeTicket ? activeTicket.status : 'Offen'" @change="updateTicketStatus(activeTicket.id, $event.target.value)" class="bg-[#1f2937] border border-slate-700 rounded-lg text-xs font-bold text-slate-200 p-1.5 focus:outline-none">
-                                    <option value="Offen">Offen</option>
-                                    <option value="In Bearbeitung">In Bearbeitung</option>
-                                    <option value="Abgeschlossen">Abgeschlossen</option>
-                                </select>
+
+                            <div class="bg-[#111827] border border-slate-800 p-4 rounded-xl space-y-3 text-left">
+                                <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">👤 Anfragender</span>
+                                </div>
+                                <div class="text-xs space-y-2.5">
+                                    <div>
+                                        <p class="text-[10px] text-slate-500 uppercase font-extrabold tracking-wide">Discord Name</p>
+                                        <p class="font-bold text-white font-mono" x-text="activeTicket?.discordRequester || 'Nicht angegeben'"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-slate-500 uppercase font-extrabold tracking-wide">Division</p>
+                                        <p class="font-semibold text-slate-300" x-text="activeTicket?.division || 'Keine'"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-slate-500 uppercase font-extrabold tracking-wide">Liga</p>
+                                        <p class="font-semibold text-slate-300" x-text="activeTicket?.liga || 'alle'"></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-[#111827] border border-slate-800 p-4 rounded-xl space-y-3 text-left">
+                                <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Details</span>
+                                </div>
+                                <div class="text-xs space-y-2.5">
+                                    <div>
+                                        <p class="text-[10px] text-slate-500 uppercase font-extrabold tracking-wide mb-1">Status</p>
+                                        <span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] font-bold px-2 py-0.5 rounded" x-text="activeTicket ? activeTicket.status : 'Offen'"></span>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-slate-500 uppercase font-extrabold tracking-wide">Priorität</p>
+                                        <p class="font-bold text-amber-400" x-text="activeTicket?.priority || 'Hoch'"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-slate-500 uppercase font-extrabold tracking-wide">Abteilung</p>
+                                        <p class="font-semibold text-slate-300" x-text="activeTicket?.category || 'Tech Support'"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-slate-500 uppercase font-extrabold tracking-wide">Zugewiesen an</p>
+                                        <p class="font-mono text-slate-300 break-all" x-text="activeTicket?.assignedTo || 'Unzugewiesen'"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-slate-500 uppercase font-extrabold tracking-wide">Supervisor L2</p>
+                                        <p class="font-mono text-slate-400 break-all" x-text="activeTicket?.supervisorL2 || 'Keiner'"></p>
+                                    </div>
+                                </div>
+
+                                <template x-if="activeTicket?.isEscalated">
+                                    <div class="mt-2 text-center bg-rose-500/10 text-rose-400 border border-rose-500/20 p-2 rounded-lg font-bold text-[10px] uppercase tracking-widest animate-pulse">
+                                        ⚠️ L2 Eskaliert
+                                    </div>
+                                </template>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 items-start">
-                            <div class="bg-[#1f2937]/30 border border-slate-800 p-4 rounded-xl space-y-3 text-xs">
-                                <div>
-                                    <span class="text-[10px] text-slate-500 font-bold uppercase block tracking-wider">Abteilung</span>
-                                    <span class="font-semibold text-slate-300" x-text="activeTicket ? activeTicket.category : 'Allgemein'"></span>
+                        <div class="lg:col-span-2 space-y-4">
+                            
+                            <template x-if="activeTicket?.isEscalated">
+                                <div class="bg-rose-950/30 border border-rose-800 p-4 rounded-xl text-left">
+                                    <span class="text-rose-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">⚠️ Eskalationsgrund</span>
+                                    <p class="text-xs font-semibold text-rose-300 mt-1" x-text="activeTicket ? activeTicket.description : ''"></p>
                                 </div>
-                                <div>
-                                    <span class="text-[10px] text-slate-500 font-bold uppercase block tracking-wider">Ersteller</span>
-                                    <span class="font-semibold text-blue-400 font-mono break-all" x-text="activeTicket ? activeTicket.createdBy : ''"></span>
+                            </template>
+
+                            <div class="bg-[#111827] border border-slate-800 p-5 rounded-xl text-left">
+                                <h1 class="text-xl font-black text-white tracking-tight" x-text="activeTicket ? activeTicket.title : ''"></h1>
+                                <p class="text-[11px] text-slate-500 mt-1" x-text="'Erstellt über System-Zentrale von ' + activeTicket?.createdBy"></p>
+                                
+                                <div class="mt-4 pt-4 border-t border-slate-800/80" x-show="!activeTicket?.isEscalated">
+                                    <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Inhalt / Begründung</h4>
+                                    <p class="text-xs font-semibold text-slate-300 mt-1.5 whitespace-pre-wrap" x-text="activeTicket ? activeTicket.description : ''"></p>
                                 </div>
                             </div>
 
-                            <div class="md:col-span-2 space-y-5">
-                                <div class="bg-[#1f2937]/30 border border-slate-800 p-4 sm:p-5 rounded-xl text-left">
-                                    <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Inhalt der Anfrage</h4>
-                                    <p class="text-xs font-semibold text-slate-300 mt-1 whitespace-pre-wrap break-words" x-text="activeTicket ? activeTicket.description : ''"></p>
+                            <div class="border border-slate-800 rounded-xl p-4 sm:p-5 space-y-4 bg-[#111827]">
+                                <div class="flex justify-between items-center border-b pb-2 border-slate-800">
+                                    <h3 class="font-bold text-xs text-white uppercase tracking-wider">Kommentare & Aufgaben</h3>
+                                    <span class="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold" x-text="activeComments.length"></span>
                                 </div>
-
-                                <div class="border border-slate-800 rounded-xl p-4 sm:p-5 space-y-4 bg-[#111827]">
-                                    <h3 class="font-bold text-xs text-white border-b pb-2 border-slate-800 uppercase tracking-wider">Interne Diskussion</h3>
-                                    <div class="space-y-3 max-h-64 overflow-y-auto pr-1">
-                                        <template x-for="c in activeComments">
-                                            <div class="flex gap-2 sm:gap-3 p-3 bg-[#1f2937]/40 border border-slate-800 rounded-xl items-start">
-                                                <div class="w-7 h-7 bg-blue-600 text-white font-bold text-xs rounded-lg flex items-center justify-center shrink-0" x-text="c.initials"></div>
-                                                <div class="text-xs flex-1 min-w-0">
-                                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5"><span class="font-bold text-slate-300 truncate" x-text="c.author"></span><span class="text-[10px] text-slate-500" x-text="c.date"></span></div>
-                                                    <p class="text-slate-400 mt-1 font-medium break-words" x-text="c.text"></p>
+                                
+                                <div class="space-y-3 max-h-80 overflow-y-auto pr-1">
+                                    <template x-for="c in activeComments">
+                                        <div class="flex gap-2 sm:gap-3 p-3 bg-[#1f2937]/30 border border-slate-800/60 rounded-xl items-start">
+                                            <div class="w-7 h-7 bg-blue-600 text-white font-bold text-xs rounded-lg flex items-center justify-center shrink-0 shadow-inner" x-text="c.initials"></div>
+                                            <div class="text-xs flex-1 min-w-0">
+                                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5">
+                                                    <span class="font-bold text-slate-300 truncate" x-text="c.author"></span>
+                                                    <span class="text-[10px] text-slate-500 font-mono" x-text="c.date"></span>
                                                 </div>
+                                                <p class="text-slate-400 mt-1 font-medium break-words whitespace-pre-wrap" x-text="c.text"></p>
                                             </div>
-                                        </template>
-                                    </div>
-
-                                    <div x-show="!activeTicket?.isDeleted" class="pt-3 border-t border-slate-800 space-y-2">
-                                        <textarea x-model="newComment" placeholder="Notiz hinterlassen..." class="w-full bg-[#1f2937] border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500 h-20 resize-none text-white"></textarea>
-                                        <div class="flex justify-end">
-                                            <button @click="submitNewComment()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-2 rounded-xl shadow-md cursor-pointer">Senden</button>
                                         </div>
+                                    </template>
+                                </div>
+
+                                <div x-show="!activeTicket?.isDeleted" class="pt-3 border-t border-slate-800 space-y-2 text-left">
+                                    <textarea x-model="newComment" placeholder="Kommentar schreiben... Tippe @ um einen Mitarbeiter zu erwähnen" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500 h-20 resize-none text-white"></textarea>
+                                    <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                                        <span class="text-[10px] text-slate-500 text-center sm:text-left">Tippe <code class="bg-slate-800 p-0.5 rounded">@Name</code> · <code class="bg-slate-800 p-0.5 rounded">Ctrl+Enter</code> zum Senden</span>
+                                        <button @click="submitNewComment()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-2 rounded-xl shadow-md cursor-pointer">Senden</button>
                                     </div>
+                                </div>
+
+                                <div class="pt-4 border-t border-slate-800 flex flex-wrap gap-2 justify-between items-center">
+                                    <select :value="activeTicket ? activeTicket.status : 'Offen'" @change="updateTicketStatus(activeTicket.id, $event.target.value)" class="bg-[#1f2937] border border-slate-700 rounded-lg text-xs font-bold text-slate-200 px-3 py-1.5 focus:outline-none cursor-pointer">
+                                        <option value="Offen">Offen</option>
+                                        <option value="In Bearbeitung">In Bearbeitung</option>
+                                        <option value="Eskaliert">Eskaliert</option>
+                                        <option value="Abgeschlossen">Abgeschlossen</option>
+                                    </select>
+                                    <button @click="updateTicketStatus(activeTicket.id, 'Abgeschlossen')" class="bg-emerald-600/10 hover:bg-emerald-600 border border-emerald-500/20 text-emerald-400 hover:text-white text-xs font-bold px-4 py-1.5 rounded-xl transition-colors cursor-pointer">
+                                        ✓ Als abgeschlossen markieren
+                                    </button>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
                 <div x-show="currentView === 'admin' && (isAdmin || isSupervisor)" class="max-w-5xl mx-auto space-y-6" style="display: none;">
-                    
                     <div class="bg-[#111827] border border-amber-500/30 rounded-xl shadow-lg p-4 sm:p-5 relative overflow-hidden bg-[linear-gradient(to_bottom_right,_rgba(245,158,11,0.05),_rgba(17,24,39,1))]">
                         <div class="flex items-center gap-2 mb-3"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span><h3 class="font-bold text-xs uppercase tracking-wider text-amber-400">Ausstehende Registrierungen</h3></div>
                         
@@ -643,15 +753,11 @@
             },
             async executeLogout() { await signOut(auth); },
             async createTicket(ticketData) { await addDoc(collection(db, "tickets"), ticketData); },
-            
-            // Refactored Evaluations Sync für Firestore
             async createEvaluation(evalData) { await addDoc(collection(db, "evaluations"), evalData); },
             async updateEvalStatus(evalId, nextStatus) { await updateDoc(doc(db, "evaluations", evalId), { status: nextStatus }); },
-            
             async createTeamMember(memberData) { await addDoc(collection(db, "users"), memberData); },
             async updateUserApproval(docId) { await updateDoc(doc(db, "users", docId), { status: 'Approved' }); },
             async removeUserRequest(docId) { await deleteDoc(doc(db, "users", docId)); },
-
             async updateTicketStatus(ticketId, nextStatus) { await updateDoc(doc(db, "tickets", ticketId), { status: nextStatus }); },
             async markTicketDeleted(ticketId, userEmail) { await updateDoc(doc(db, "tickets", ticketId), { isDeleted: true, deletedBy: userEmail }); },
 
@@ -698,23 +804,28 @@
                 availableDepartments: [
                     'Finanzwesen', 'Techsupport', 'Support Level 1/Steward Level 1', 
                     'Supervisor L2', 'Vertrieb & Beratung', 'Inhaber', 
-                    'Co-Inhaber', 'Partner', 'Designer', 'Intern'
+                    'Co-Inhaber', 'Partner', 'Designer', 'Intern', 'Interne Anfrage'
                 ],
 
-                newTicketData: { title: '', category: '', status: 'Offen', description: '', isEscalated: false },
+                // Erweitertes Datenobjekt für Ticket-Erstellung (Ticket.png)
+                newTicketData: { 
+                    title: '', 
+                    category: 'Interne Anfrage', 
+                    status: 'Offen', 
+                    description: '', 
+                    isEscalated: false,
+                    discordRequester: '',
+                    division: 'Keine',
+                    liga: 'alle',
+                    priority: 'Hoch',
+                    assignedTo: '',
+                    supervisorL2: ''
+                },
                 
-                // Neue Struktur basierend auf Ev 1.jpg
                 newEvalData: { 
-                    operatorEmail: '', 
-                    operatorName: '',
-                    period: 'Juni 2026', 
-                    scoreHandling: 7, 
-                    scoreQuality: 7, 
-                    scoreWorkflow: 7, 
-                    scoreEscalation: 7,
-                    strengths: '',
-                    improvements: '',
-                    generalNotes: ''
+                    operatorEmail: '', operatorName: '', period: 'Juni 2026', 
+                    scoreHandling: 7, scoreQuality: 7, scoreWorkflow: 7, scoreEscalation: 7,
+                    strengths: '', improvements: '', generalNotes: ''
                 },
                 
                 newMemberData: { name: '', email: '', departments: [] },
@@ -785,7 +896,6 @@
                     });
                 },
 
-                // Hilfsfunktionen für Berechnungen (Ev 2.jpg)
                 calculateLiveAverage() {
                     let avg = (parseInt(this.newEvalData.scoreHandling) + 
                                parseInt(this.newEvalData.scoreQuality) + 
@@ -816,9 +926,7 @@
 
                 async submitEvaluation() {
                     if (!this.newEvalData.operatorEmail) { alert("Bitte einen Mitarbeiter auswählen."); return; }
-                    
                     let finalCalculatedScore = this.calculateLiveAverage();
-                    
                     try {
                         await window.firebaseBridge.createEvaluation({
                             ...this.newEvalData,
@@ -861,8 +969,14 @@
                 async submitNewTicket() {
                     if (!this.newTicketData.title.trim() || !this.newTicketData.category) return;
                     try {
-                        await window.firebaseBridge.createTicket({ ...this.newTicketData, isDeleted: false, createdBy: this.user.email, subtitle: `Abteilung: ${this.newTicketData.category} - von ${this.user.email}`, createdAt: new Date().getTime() });
-                        this.newTicketData = { title: '', category: '', status: 'Offen', description: '', isEscalated: false };
+                        await window.firebaseBridge.createTicket({ 
+                            ...this.newTicketData, 
+                            isDeleted: false, 
+                            createdBy: this.user.email, 
+                            subtitle: `Kategorie: ${this.newTicketData.category} - Von: ${this.newTicketData.discordRequester || this.user.email}`, 
+                            createdAt: new Date().getTime() 
+                        });
+                        this.newTicketData = { title: '', category: 'Interne Anfrage', status: 'Offen', description: '', isEscalated: false, discordRequester: '', division: 'Keine', liga: 'alle', priority: 'Hoch', assignedTo: '', supervisorL2: '' };
                         this.currentView = 'tickets';
                     } catch(e) { console.error(e); }
                 },
