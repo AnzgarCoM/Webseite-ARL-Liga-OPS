@@ -45,7 +45,7 @@
             </form>
             <div class="mt-6 text-center border-t pt-4 border-slate-800">
                 <button @click="isRegistering = !isRegistering; authError = ''" class="text-xs text-slate-400 hover:text-blue-400 transition-colors cursor-pointer">
-                    <span x-text="isRegistering ? 'Bereits im Team? Hier einloggen' : 'Neu im Team? Account beantragen'"></span>
+                    <span x-text="isRegistering ? 'Bereits im Team? Here einloggen' : 'Neu im Team? Account beantragen'"></span>
                 </button>
             </div>
         </div>
@@ -77,7 +77,7 @@
                 <nav class="p-3 space-y-1">
                     <button @click="currentView = 'dashboard'; mobileMenuOpen = false" :class="currentView === 'dashboard' ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left">Dashboard</button>
                     <button @click="currentView = 'tickets'; mobileMenuOpen = false" :class="(currentView === 'tickets' || currentView === 'ticket-detail' || currentView === 'ticket-create') ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left">Tickets & Anträge</button>
-                    <button @click="currentView = 'team'; mobileMenuOpen = false" :class="currentView === 'team' ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left">👥 Team-Übersicht</button>
+                    <button @click="currentView = 'team'; mobileMenuOpen = false" :class="currentView === 'team' ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left">👥 Team-Hierarchie</button>
                     <button @click="currentView = 'archive'; mobileMenuOpen = false" :class="currentView === 'archive' ? 'bg-slate-700 text-white font-semibold' : 'hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left">Archiv & Papierkorb</button>
                     <button @click="currentView = 'qa'; mobileMenuOpen = false" :class="currentView === 'qa' ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left">📊 Quality Analyst</button>
                     
@@ -171,59 +171,94 @@
                                 </div>
                             </div>
                         </template>
-                        <div x-show="tickets.filter(t => t.status !== 'Abgeschlossen' && !t.isDeleted).length === 0" class="p-12 text-center text-xs text-slate-500">Keine aktiven Vorfälle verzeichnet.</div>
+                        <div x-show="tickets.filter(t => t.status !== 'Abgeschlossen' && !t.isDeleted).length === 0" class="p-12 text-center text-xs text-slate-500">Keine active Vorfälle verzeichnet.</div>
                     </div>
                 </div>
 
-                <div x-show="currentView === 'team'" class="max-w-5xl mx-auto space-y-4" style="display: none;">
-                    <h2 class="text-lg sm:text-xl font-bold text-white tracking-tight">👥 Offizielle ARL Team-Übersicht</h2>
-                    <p class="text-xs text-slate-400">Hier sind alle verifizierten Mitarbeiter aufgelistet.</p>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:hidden">
-                        <template x-for="m in cloudUsers.filter(u => u.status === 'Approved')">
-                            <div class="bg-[#111827] border border-slate-800 p-4 rounded-xl space-y-2">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 bg-blue-600/20 text-blue-400 rounded flex items-center justify-center text-[10px] font-black" x-text="m.name ? m.name.substring(0,2).toUpperCase() : '??'"></div>
-                                    <span class="font-bold text-sm text-white" x-text="m.name || 'Unbekannt'"></span>
-                                </div>
-                                <p class="text-xs text-slate-400 font-mono truncate" x-text="m.email"></p>
-                                <div class="flex flex-wrap gap-1 pt-1">
-                                    <template x-for="d in (m.departments || [])">
-                                        <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[9px] font-semibold px-2 py-0.5 rounded" x-text="d"></span>
-                                    </template>
-                                </div>
-                            </div>
-                        </template>
+                <div x-show="currentView === 'team'" class="max-w-5xl mx-auto space-y-8" style="display: none;">
+                    <div class="text-center space-y-2">
+                        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight uppercase">👑 ARL Organisations-Hierarchie</h2>
+                        <p class="text-xs text-slate-400 max-w-md mx-auto">Die offizielle Struktur und Aufgabenverteilung der Austrian Racing League Administration.</p>
                     </div>
-
-                    <div class="hidden lg:block bg-[#111827] border border-slate-800 rounded-xl shadow-lg overflow-hidden">
-                        <table class="w-full text-left text-xs">
-                            <thead>
-                                <tr class="border-b border-slate-800 text-slate-500 font-bold bg-[#111827]">
-                                    <th class="p-4">Name / Fahrername</th>
-                                    <th class="p-4">E-Mail-Adresse</th>
-                                    <th class="p-4 text-right">Zugehörige Abteilungen</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-800">
-                                <template x-for="m in cloudUsers.filter(u => u.status === 'Approved')">
-                                    <tr class="hover:bg-slate-800/20 transition-colors">
-                                        <td class="p-4 font-bold text-white flex items-center gap-2">
-                                            <div class="w-6 h-6 bg-blue-600/20 text-blue-400 rounded flex items-center justify-center text-[10px] font-black" x-text="m.name ? m.name.substring(0,2).toUpperCase() : '??'"></div>
-                                            <span x-text="m.name || 'Unbekannt'"></span>
-                                        </td>
-                                        <td class="p-4 text-slate-400 font-mono" x-text="m.email"></td>
-                                        <td class="p-4 text-right">
-                                            <div class="flex justify-end flex-wrap gap-1">
-                                                <template x-for="d in (m.departments || [])">
-                                                    <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[9px] font-semibold px-2 py-0.5 rounded" x-text="d"></span>
-                                                </template>
-                                            </div>
-                                        </td>
-                                    </tr>
+                    
+                    <div class="space-y-8 relative before:absolute before:top-4 before:bottom-4 before:left-1/2 before:-translate-x-1/2 before:w-0.5 before:bg-slate-800/50 before:-z-10">
+                        
+                        <div class="space-y-3">
+                            <div class="flex justify-center">
+                                <span class="bg-rose-500/10 text-rose-400 border border-rose-500/30 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">Ebene 1: Projektleitung & Inhaber</span>
+                            </div>
+                            <div class="flex flex-wrap justify-center gap-4">
+                                <template x-for="m in cloudUsers.filter(u => u.status === 'Approved' && (u.departments || []).some(d => d === 'Inhaber' || u.email === 'leagueaustrianracing@gmail.com'))">
+                                    <div class="bg-gradient-to-b from-rose-950/20 to-slate-900 border-2 border-rose-500/40 p-4 rounded-xl w-64 text-center shadow-xl backdrop-blur">
+                                        <div class="w-10 h-10 bg-rose-600 text-white rounded-full flex items-center justify-center text-xs font-black mx-auto shadow-md" x-text="m.name.substring(0,2).toUpperCase()"></div>
+                                        <h4 class="font-black text-sm text-white mt-2" x-text="m.name"></h4>
+                                        <p class="text-[10px] text-slate-400 font-mono mt-0.5" x-text="m.email"></p>
+                                        <div class="mt-2.5 flex justify-center flex-wrap gap-1">
+                                            <span class="bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[9px] font-bold px-2 py-0.5 rounded">Projektleitung</span>
+                                        </div>
+                                    </div>
                                 </template>
-                            </tbody>
-                        </table>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-center">
+                                <span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">Ebene 2: Co-Inhaber & Strategie</span>
+                            </div>
+                            <div class="flex flex-wrap justify-center gap-4">
+                                <template x-for="m in cloudUsers.filter(u => u.status === 'Approved' && (u.departments || []).includes('Co-Inhaber') && u.email !== 'leagueaustrianracing@gmail.com')">
+                                    <div class="bg-gradient-to-b from-amber-950/20 to-slate-900 border-amber-500/30 p-4 rounded-xl w-60 text-center shadow-lg">
+                                        <div class="w-9 h-9 bg-amber-600 text-white rounded-full flex items-center justify-center text-xs font-bold mx-auto" x-text="m.name.substring(0,2).toUpperCase()"></div>
+                                        <h4 class="font-bold text-xs text-white mt-2" x-text="m.name"></h4>
+                                        <p class="text-[10px] text-slate-500 font-mono mt-0.5" x-text="m.email"></p>
+                                        <div class="mt-2 flex justify-center flex-wrap gap-1">
+                                            <span class="bg-amber-500/20 text-amber-300 text-[9px] font-medium px-2 py-0.5 rounded">Co-Inhaber</span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div x-show="cloudUsers.filter(u => u.status === 'Approved' && (u.departments || []).includes('Co-Inhaber')).length === 0" class="text-[10px] text-slate-600 italic">Keine Stellvertreter zugewiesen</div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-center">
+                                <span class="bg-purple-500/10 text-purple-400 border border-purple-500/30 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">Ebene 3: Supervisor L2 & Ressortleiter</span>
+                            </div>
+                            <div class="flex flex-wrap justify-center gap-4">
+                                <template x-for="m in cloudUsers.filter(u => u.status === 'Approved' && ((u.departments || []).includes('Supervisor L2') || (u.departments || []).includes('Admin')) && !(u.departments || []).some(d => d === 'Inhaber' || d === 'Co-Inhaber') && u.email !== 'leagueaustrianracing@gmail.com')">
+                                    <div class="bg-[#111827] border border-purple-500/20 p-4 rounded-xl w-56 text-center shadow-md">
+                                        <div class="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs font-bold mx-auto" x-text="m.name.substring(0,2).toUpperCase()"></div>
+                                        <h4 class="font-bold text-xs text-white mt-2" x-text="m.name"></h4>
+                                        <div class="mt-2 flex justify-center flex-wrap gap-1">
+                                            <span class="bg-purple-500/20 text-purple-300 text-[9px] font-medium px-1.5 py-0.5 rounded" x-text="(m.departments || []).includes('Admin') ? 'Admin' : 'Supervisor L2'"></span>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-center">
+                                <span class="bg-blue-500/10 text-blue-400 border border-blue-500/30 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">Ebene 4: Fachabteilungen & Spezialisten</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                                <template x-for="m in cloudUsers.filter(u => u.status === 'Approved' && !(u.departments || []).some(d => d === 'Inhaber' || d === 'Co-Inhaber' || d === 'Supervisor L2' || d === 'Admin') && u.email !== 'leagueaustrianracing@gmail.com')">
+                                    <div class="bg-[#111827] border border-slate-800/80 p-3 rounded-xl flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-blue-600/20 text-blue-400 rounded-lg flex items-center justify-center text-xs font-black shrink-0" x-text="m.name.substring(0,2).toUpperCase()"></div>
+                                        <div class="min-w-0 flex-1">
+                                            <h5 class="font-bold text-xs text-white truncate" x-text="m.name"></h5>
+                                            <div class="flex flex-wrap gap-1 mt-1">
+                                                <template x-for="dept in (m.departments || []).filter(d => d !== 'Support Level 1/Steward Level 1')">
+                                                    <span class="bg-blue-500/10 text-blue-400 text-[8px] font-bold px-1.5 py-0.5 rounded border border-blue-500/10" x-text="dept"></span>
+                                                </template>
+                                                <span x-show="(m.departments || []).length === 0" class="text-[8px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">Renn-Steward</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -440,6 +475,7 @@
                                                 <option value="Support Level 1/Steward Level 1">Support Level 1/Steward Level 1</option>
                                                 <option value="Supervisor L2">Supervisor L2</option>
                                                 <option value="Vertrieb & Beratung">Vertrieb & Beratung</option>
+                                                <option value="Admin">Admin</option>
                                             </select>
                                         </div>
                                         <div>
@@ -494,11 +530,11 @@
 
                                 <div>
                                     <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Begründung / Eskalationsgrund</label>
-                                    <textarea x-model="newTicketData.description" required rows="3" placeholder="z.B. bitte Frau Mimoza Barbosa zuweisen und die Angaben setzen..." class="w-full bg-[#1f2937] border border-slate-700 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 resize-none text-white"></textarea>
+                                    <textarea x-model="newTicketData.description" required rows="3" placeholder="Inhalt eintragen..." class="w-full bg-[#1f2937] border border-slate-700 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 resize-none text-white"></textarea>
                                 </div>
 
                                 <div class="flex items-center gap-3 bg-[#1f2937]/30 p-3 rounded-xl border border-slate-800">
-                                    <input type="checkbox" id="escalateCheck" x-model="newTicketData.isEscalated" class="w-4 h-4 text-blue-600 border-slate-700 rounded bg-slate-900 focus:ring-blue-500">
+                                    <input type="checkbox" id="escalateCheck" x-model="newTicketData.isEscalated" class="w-4 h-4 text-blue-600 border-slate-700 rounded bg-slate-900">
                                     <label @click.prevent="newTicketData.isEscalated = !newTicketData.isEscalated" for="escalateCheck" class="text-xs font-semibold text-slate-300 cursor-pointer select-none">🚨 Als kritischen L2-Fall eskalieren</label>
                                 </div>
                                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-2.5 rounded-xl shadow-md cursor-pointer">In der Cloud speichern</button>
@@ -516,9 +552,7 @@
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                        
                         <div class="space-y-4 lg:col-span-1">
-                            
                             <div class="bg-[#111827] border border-slate-800 p-4 rounded-xl space-y-2 text-left">
                                 <span class="text-xs font-bold text-slate-400 tracking-wide flex items-center gap-1.5">🏷 Ticket Kategorie</span>
                                 <div class="bg-slate-800/40 p-2.5 rounded-lg border border-slate-700/50 text-xs font-bold text-blue-400" x-text="activeTicket ? activeTicket.category : 'Allgemein'"></div>
@@ -558,10 +592,6 @@
                                         <p class="font-bold text-amber-400" x-text="activeTicket?.priority || 'Hoch'"></p>
                                     </div>
                                     <div>
-                                        <p class="text-[10px] text-slate-500 uppercase font-extrabold tracking-wide">Abteilung</p>
-                                        <p class="font-semibold text-slate-300" x-text="activeTicket?.category || 'Tech Support'"></p>
-                                    </div>
-                                    <div>
                                         <p class="text-[10px] text-slate-500 uppercase font-extrabold tracking-wide">Zugewiesen an</p>
                                         <p class="font-mono text-slate-300 break-all" x-text="activeTicket?.assignedTo || 'Unzugewiesen'"></p>
                                     </div>
@@ -570,7 +600,6 @@
                                         <p class="font-mono text-slate-400 break-all" x-text="activeTicket?.supervisorL2 || 'Keiner'"></p>
                                     </div>
                                 </div>
-
                                 <template x-if="activeTicket?.isEscalated">
                                     <div class="mt-2 text-center bg-rose-500/10 text-rose-400 border border-rose-500/20 p-2 rounded-lg font-bold text-[10px] uppercase tracking-widest animate-pulse">
                                         ⚠️ L2 Eskaliert
@@ -580,7 +609,6 @@
                         </div>
 
                         <div class="lg:col-span-2 space-y-4">
-                            
                             <template x-if="activeTicket?.isEscalated">
                                 <div class="bg-rose-950/30 border border-rose-800 p-4 rounded-xl text-left">
                                     <span class="text-rose-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">⚠️ Eskalationsgrund</span>
@@ -590,8 +618,7 @@
 
                             <div class="bg-[#111827] border border-slate-800 p-5 rounded-xl text-left">
                                 <h1 class="text-xl font-black text-white tracking-tight" x-text="activeTicket ? activeTicket.title : ''"></h1>
-                                <p class="text-[11px] text-slate-500 mt-1" x-text="'Erstellt über System-Zentrale von ' + activeTicket?.createdBy"></p>
-                                
+                                <p class="text-[11px] text-slate-500 mt-1" x-text="'Erstellt von ' + activeTicket?.createdBy"></p>
                                 <div class="mt-4 pt-4 border-t border-slate-800/80" x-show="!activeTicket?.isEscalated">
                                     <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Inhalt / Begründung</h4>
                                     <p class="text-xs font-semibold text-slate-300 mt-1.5 whitespace-pre-wrap" x-text="activeTicket ? activeTicket.description : ''"></p>
@@ -603,11 +630,10 @@
                                     <h3 class="font-bold text-xs text-white uppercase tracking-wider">Kommentare & Aufgaben</h3>
                                     <span class="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold" x-text="activeComments.length"></span>
                                 </div>
-                                
                                 <div class="space-y-3 max-h-80 overflow-y-auto pr-1">
                                     <template x-for="c in activeComments">
                                         <div class="flex gap-2 sm:gap-3 p-3 bg-[#1f2937]/30 border border-slate-800/60 rounded-xl items-start">
-                                            <div class="w-7 h-7 bg-blue-600 text-white font-bold text-xs rounded-lg flex items-center justify-center shrink-0 shadow-inner" x-text="c.initials"></div>
+                                            <div class="w-7 h-7 bg-blue-600 text-white font-bold text-xs rounded-lg flex items-center justify-center shrink-0" x-text="c.initials"></div>
                                             <div class="text-xs flex-1 min-w-0">
                                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5">
                                                     <span class="font-bold text-slate-300 truncate" x-text="c.author"></span>
@@ -618,15 +644,13 @@
                                         </div>
                                     </template>
                                 </div>
-
                                 <div x-show="!activeTicket?.isDeleted" class="pt-3 border-t border-slate-800 space-y-2 text-left">
-                                    <textarea x-model="newComment" placeholder="Kommentar schreiben... Tippe @ um einen Mitarbeiter zu erwähnen" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500 h-20 resize-none text-white"></textarea>
-                                    <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
-                                        <span class="text-[10px] text-slate-500 text-center sm:text-left">Tippe <code class="bg-slate-800 p-0.5 rounded">@Name</code> · <code class="bg-slate-800 p-0.5 rounded">Ctrl+Enter</code> zum Senden</span>
-                                        <button @click="submitNewComment()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-2 rounded-xl shadow-md cursor-pointer">Senden</button>
+                                    <textarea x-model="newComment" placeholder="Kommentar schreiben..." class="w-full bg-[#1f2937] border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500 h-20 resize-none text-white"></textarea>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-[10px] text-slate-500">Ctrl+Enter zum Senden</span>
+                                        <button @click="submitNewComment()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-2 rounded-xl shadow-md cursor-pointer">Senden</button>
                                     </div>
                                 </div>
-
                                 <div class="pt-4 border-t border-slate-800 flex flex-wrap gap-2 justify-between items-center">
                                     <select :value="activeTicket ? activeTicket.status : 'Offen'" @change="updateTicketStatus(activeTicket.id, $event.target.value)" class="bg-[#1f2937] border border-slate-700 rounded-lg text-xs font-bold text-slate-200 px-3 py-1.5 focus:outline-none cursor-pointer">
                                         <option value="Offen">Offen</option>
@@ -634,20 +658,18 @@
                                         <option value="Eskaliert">Eskaliert</option>
                                         <option value="Abgeschlossen">Abgeschlossen</option>
                                     </select>
-                                    <button @click="updateTicketStatus(activeTicket.id, 'Abgeschlossen')" class="bg-emerald-600/10 hover:bg-emerald-600 border border-emerald-500/20 text-emerald-400 hover:text-white text-xs font-bold px-4 py-1.5 rounded-xl transition-colors cursor-pointer">
+                                    <button @click="updateTicketStatus(activeTicket.id, 'Abgeschlossen')" class="bg-emerald-600/10 hover:bg-emerald-600 border border-emerald-500/20 text-emerald-400 text-xs font-bold px-4 py-1.5 rounded-xl cursor-pointer">
                                         ✓ Als abgeschlossen markieren
                                     </button>
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
                 <div x-show="currentView === 'admin' && (isAdmin || isSupervisor)" class="max-w-5xl mx-auto space-y-6" style="display: none;">
                     <div class="bg-[#111827] border border-amber-500/30 rounded-xl shadow-lg p-4 sm:p-5 relative overflow-hidden bg-[linear-gradient(to_bottom_right,_rgba(245,158,11,0.05),_rgba(17,24,39,1))]">
                         <div class="flex items-center gap-2 mb-3"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span><h3 class="font-bold text-xs uppercase tracking-wider text-amber-400">Ausstehende Registrierungen</h3></div>
-                        
                         <div class="space-y-3">
                             <template x-for="m in cloudUsers.filter(u => u.status === 'Pending')">
                                 <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex flex-col gap-2">
@@ -656,7 +678,7 @@
                                         <p class="text-[11px] text-slate-400 font-mono truncate" x-text="m.email"></p>
                                     </div>
                                     <div class="flex gap-2 mt-1">
-                                        <button @click="approveUser(m.id)" class="flex-1 bg-emerald-600 text-white font-bold text-[10px] py-2 rounded-lg shadow cursor-pointer">✔ Freischalten</button>
+                                        <button @click="approveUser(m.id)" class="flex-1 bg-emerald-600 text-white font-bold text-[10px] py-2 rounded-lg cursor-pointer">✔ Freischalten</button>
                                         <button @click="rejectAndCancelUser(m.id)" class="flex-1 bg-rose-600/20 text-rose-400 border border-rose-500/30 font-bold text-[10px] py-2 rounded-lg cursor-pointer">❌ Ablehnen</button>
                                     </div>
                                 </div>
@@ -718,6 +740,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -745,7 +768,7 @@
                         name: chosenName || email.split('@')[0], 
                         email: email.toLowerCase(),
                         role: initialStatus === 'Approved' ? 'Projektleitung' : 'Steward',
-                        departments: initialStatus === 'Approved' ? ['Inhaber', 'Supervisor L2'] : ['Support Level 1/Steward Level 1'],
+                        departments: initialStatus === 'Approved' ? ['Inhaber', 'Admin', 'Supervisor L2'] : ['Support Level 1/Steward Level 1'],
                         status: initialStatus, createdAt: new Date().getTime()
                     });
                     return cred;
@@ -804,22 +827,12 @@
                 availableDepartments: [
                     'Finanzwesen', 'Techsupport', 'Support Level 1/Steward Level 1', 
                     'Supervisor L2', 'Vertrieb & Beratung', 'Inhaber', 
-                    'Co-Inhaber', 'Partner', 'Designer', 'Intern', 'Interne Anfrage'
+                    'Co-Inhaber', 'Partner', 'Designer', 'Intern', 'Interne Anfrage', 'Admin'
                 ],
 
-                // Erweitertes Datenobjekt für Ticket-Erstellung (Ticket.png)
                 newTicketData: { 
-                    title: '', 
-                    category: 'Interne Anfrage', 
-                    status: 'Offen', 
-                    description: '', 
-                    isEscalated: false,
-                    discordRequester: '',
-                    division: 'Keine',
-                    liga: 'alle',
-                    priority: 'Hoch',
-                    assignedTo: '',
-                    supervisorL2: ''
+                    title: '', category: 'Interne Anfrage', status: 'Offen', description: '', isEscalated: false,
+                    discordRequester: '', division: 'Keine', liga: 'alle', priority: 'Hoch', assignedTo: '', supervisorL2: ''
                 },
                 
                 newEvalData: { 
@@ -876,6 +889,7 @@
                         
                         if (this.isAdmin) {
                             this.isApproved = true;
+                            this.isSupervisor = true;
                             this.currentUserRole = 'Projektleitung';
                             this.myProfileName = 'Haupt-Administrator';
                             this.myDepartments = [...this.availableDepartments]; 
@@ -884,8 +898,11 @@
                             this.myProfileName = match.name || match.email.split('@')[0];
                             this.myDepartments = match.departments && match.departments.length ? match.departments : ['Support Level 1/Steward Level 1'];
                             
-                            const hasSupervision = (match.departments && (match.departments.includes('Supervisor L2') || match.departments.includes('Inhaber') || match.departments.includes('Co-Inhaber')));
+                            // Berechtigungs-Prüfung: Admin, Supervisor L2, Inhaber und Co-Inhaber bekommen Management-Rechte
+                            const hasSupervision = (match.departments && (match.departments.includes('Supervisor L2') || match.departments.includes('Admin') || match.departments.includes('Inhaber') || match.departments.includes('Co-Inhaber')));
                             this.isSupervisor = !!hasSupervision;
+                            this.isAdmin = (match.departments && match.departments.includes('Admin'));
+                            
                             this.currentUserRole = this.myDepartments.join(' & ');
                         } else {
                             this.isApproved = false;
@@ -944,23 +961,14 @@
                     } catch(e) { console.error(e); }
                 },
 
-                async updateEvalStatus(evalId, nextStatus) {
-                    try { await window.firebaseBridge.updateEvalStatus(evalId, nextStatus); } catch (e) { console.error(e); }
-                },
-
-                async updateTicketStatus(ticketId, nextStatus) {
-                    try { await window.firebaseBridge.updateTicketStatus(ticketId, nextStatus); } catch (e) { console.error(e); }
-                },
-
+                async updateEvalStatus(evalId, nextStatus) { try { await window.firebaseBridge.updateEvalStatus(evalId, nextStatus); } catch (e) { console.error(e); } },
+                async updateTicketStatus(ticketId, nextStatus) { try { await window.firebaseBridge.updateTicketStatus(ticketId, nextStatus); } catch (e) { console.error(e); } },
                 async deleteTicket(ticketId) {
                     if (!confirm("Bist du sicher, dass du dieses Ticket löschen willst?")) return;
                     try { await window.firebaseBridge.markTicketDeleted(ticketId, this.user.email); this.currentView = 'tickets'; } catch (e) { console.error(e); }
                 },
 
-                async approveUser(docId) {
-                    try { await window.firebaseBridge.updateUserApproval(docId); } catch(e) { console.error(e); }
-                },
-
+                async approveUser(docId) { try { await window.firebaseBridge.updateUserApproval(docId); } catch(e) { console.error(e); } },
                 async rejectAndCancelUser(docId) {
                     if (!confirm("Möchtest du diese Registrierungsanfrage löschen?")) return;
                     try { await window.firebaseBridge.removeUserRequest(docId); } catch(e) { console.error(e); }
@@ -970,11 +978,8 @@
                     if (!this.newTicketData.title.trim() || !this.newTicketData.category) return;
                     try {
                         await window.firebaseBridge.createTicket({ 
-                            ...this.newTicketData, 
-                            isDeleted: false, 
-                            createdBy: this.user.email, 
-                            subtitle: `Kategorie: ${this.newTicketData.category} - Von: ${this.newTicketData.discordRequester || this.user.email}`, 
-                            createdAt: new Date().getTime() 
+                            ...this.newTicketData, isDeleted: false, createdBy: this.user.email, 
+                            subtitle: `Kategorie: ${this.newTicketData.category}`, createdAt: new Date().getTime() 
                         });
                         this.newTicketData = { title: '', category: 'Interne Anfrage', status: 'Offen', description: '', isEscalated: false, discordRequester: '', division: 'Keine', liga: 'alle', priority: 'Hoch', assignedTo: '', supervisorL2: '' };
                         this.currentView = 'tickets';
