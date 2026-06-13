@@ -346,7 +346,7 @@
                                             <option :value="member.email" x-text="member.name"></option>
                                         </template>
                                     </select>
-                                </div>
+                                }</div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Bewertungszeitraum</label>
                                     <input type="text" x-model="newEvalData.period" placeholder="z.B. Mai 2026" class="w-full bg-[#1f2937] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 focus:outline-none">
@@ -740,7 +740,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
